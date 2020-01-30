@@ -7,6 +7,10 @@ using EasyButtons;
 
 public class Master : MonoBehaviour
 {
+    public static Master _master;
+
+    [Header("Estado Juego")]
+    public bool jugando;
     [Header("CullingMask")]
     public Camera camaraJugador;
     public LayerMask cullingInicio;
@@ -21,8 +25,12 @@ public class Master : MonoBehaviour
     public TMP_Text tiempo_texto;
     public GameObject panelCamaraB;
 
+
+    bool manoDerechaLista, manoizquierdaLista;
     void Start()
     {
+        _master = this;
+
         camaraJugador.cullingMask = cullingInicio;
 
         tiempo = tiempoLimite;
@@ -44,12 +52,16 @@ public class Master : MonoBehaviour
     [Button]
     public void IniciarJuego()
     {
+        if (jugando)
+            return;
+        else
+            jugando = true;
         Debug.Log("Se Inicio el Juego");
 
         empezarConteo = true;
         camaraJugador.cullingMask = cullingJuego;
         fadeEsfera.SetTrigger("fadeOut");
-
+        
     }
     [Button]
     public void ReiniciarJuego()
@@ -83,5 +95,28 @@ public class Master : MonoBehaviour
     public void FinJuego()
     {
         Debug.Log("Se termino el juego");
+    }
+
+    /// <summary>
+    /// Recibe el input de los triggers de los controles para empezar el juego
+    /// </summary>
+    /// <param name="mano"></param>
+    public void InicioTrigger(ManoControl.TipoMano mano)
+    {
+        if (jugando)
+            return;
+        if (mano == ManoControl.TipoMano.derecha)
+        {
+            manoDerechaLista = true;
+        }
+        if (mano == ManoControl.TipoMano.izquierda)
+        {
+            manoizquierdaLista = true;
+        }
+
+        if(manoizquierdaLista && manoDerechaLista)
+        {
+            IniciarJuego();
+        }
     }
 }

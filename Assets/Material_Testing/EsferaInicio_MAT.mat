@@ -96,7 +96,7 @@ Material:
     - _Masc: 1
     - _Mascara: 1
     - _MascaraFa: 1
-    - _MascaraFade: 1
+    - _MascaraFade: -0.398
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
