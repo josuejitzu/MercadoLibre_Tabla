@@ -96,7 +96,7 @@ Material:
     - _Masc: 1
     - _Mascara: 1
     - _MascaraFa: 1
-    - _MascaraFade: -0.398
+    - _MascaraFade: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -110,4 +110,4 @@ Material:
     m_Colors:
     - _AlbedoColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

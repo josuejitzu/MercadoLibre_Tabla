@@ -13,8 +13,8 @@ public class Caja_Control : MonoBehaviour
         if (other.transform.tag == "meta")
         {
             Debug.Log("Caja llego a meta");
-            Master._master.FinJuego();
-
+            //Master._master.FinJuego();
+            Master._master.GanoJuego();
         }
     }
 }

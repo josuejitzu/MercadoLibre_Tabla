@@ -133,7 +133,7 @@ public class ManoControl : MonoBehaviour
 
         var joint = AddFixedJoint();
         joint.connectedBody = caja.GetComponent<Rigidbody>();
-
+        Master._master.zonaMeta.SetActive(true);
     }
     void SoltarCaja()
     {
@@ -155,6 +155,7 @@ public class ManoControl : MonoBehaviour
 
         caja.GetComponent<Caja_Control>().cajaTomada = false;
         //caja = null;
+        Master._master.zonaMeta.SetActive(false);
 
         DestruirJoint();
         manoContraria.DestruirJoint();

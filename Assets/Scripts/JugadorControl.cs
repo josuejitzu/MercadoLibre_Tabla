@@ -13,11 +13,7 @@ public class JugadorControl : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   
 
     private void OnTriggerEnter(Collider other)
     {
@@ -25,6 +21,10 @@ public class JugadorControl : MonoBehaviour
         {
             Debug.Log("jugador salio del limite");
             TirarJugador();
+        }
+        if(other.transform.name == "triggerHelicoptero")
+        {
+            Debug.Log("Jugador entro a trigger helicoptero");
         }
     }
 
