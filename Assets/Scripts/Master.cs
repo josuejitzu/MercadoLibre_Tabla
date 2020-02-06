@@ -22,7 +22,8 @@ public class Master : MonoBehaviour
     public GameObject zonaMeta;
     public GameObject panelFinal_gano;
     public GameObject panelFinal_perdio;
-
+    public GameObject panelInicio;
+    public GameObject limites;
     [Header("CullingMask")]
     public Camera camaraJugador;
     public LayerMask cullingInicio;
@@ -42,6 +43,12 @@ public class Master : MonoBehaviour
     public AudioSource afirmacion_sfx;
     public AudioSource trafico_sfx;
     public AudioSource viento_sfx;
+    public AudioSource suspenso_sfx;
+    public AudioSource heartbeat_sfx;
+    public AudioSource musicaLobby_sfx;
+    public AudioSource celebracion_sfx;
+    public AudioSource beepReloj_sfx;
+
     [Header("VFX")]
     public ParticleSystem confetti_vfx;
     [Header("PersonasUpdate")]
@@ -92,8 +99,10 @@ public class Master : MonoBehaviour
         if (jugando || enTutorial || tutorialTerminado)
             return;
 
+        panelInicio.SetActive(false);
         enTutorial = true;
         instruccionesInicio.SetActive(true);
+        afirmacion_sfx.Play();
 
         await Task.Delay(TimeSpan.FromSeconds(11.0f));
         tutorialTerminado = true;
@@ -112,7 +121,14 @@ public class Master : MonoBehaviour
         else
             jugando = true;
 
+        panelInicio.SetActive(false);
+        limites.SetActive(true);
+
         afirmacion_sfx.Play();
+        musicaLobby_sfx.Stop();
+        suspenso_sfx.Play();
+        Ambiente_sfx(true);
+
         Debug.Log("Se Inicio el Juego");
         instruccionesInicio.GetComponent<Animator>().SetTrigger("desaparecer");
 
@@ -153,6 +169,10 @@ public class Master : MonoBehaviour
         tiempo_texto.text = (((Mathf.Floor(tiempo / 60f)) % 60).ToString("00")) + ":" + (Mathf.Floor(tiempo % 60f).ToString("00") + "." + ((tiempo * 100) % 100).ToString("00"));// % deja el restante y / sale cuanto tuvo que dividires(arriba de la casita)
         cronometro_jugador_text.text = tiempo_texto.text;
 
+
+
+
+
         if (tiempo <= 0.0)
         {
             Debug.Log("Se termino el tiempo");
@@ -161,21 +181,72 @@ public class Master : MonoBehaviour
             FinJuego();
         }
     }
+    async void BeepReloj()
+    {
+        beepReloj_sfx.Play();
+        await Task.Delay(TimeSpan.FromSeconds(30.0f));
+        if(empezarConteo)
+        {
+            BeepReloj();
+        }
 
+    }
     [Button]
     public void GanoJuego()
     {
-        confetti_vfx.Play();
+        limites.SetActive(false);
+        empezarConteo = false;
+
         fadeEsfera.SetTrigger("fadeIn");
+
+        Ambiente_sfx(false);
+
+        suspenso_sfx.Stop();
+
+        confetti_vfx.Play();
+        celebracion_sfx.Play();
         camaraJugador.cullingMask = cullingInicio;
         panelFinal_gano.SetActive(true);
     }
 
     [Button]
-    public void JugadorCayo()
+    public async void JugadorCayo()
     {
+        limites.SetActive(false);
+        empezarConteo = false;
+
+        Debug.Log("Jugador Cayo");
+        //TODO: sfx de perdio
+        //JugadorControl._jugador.fadeBlanco.SetTrigger("fadeIn");
+        fadeEsfera.SetTrigger("fadeIn");
+        suspenso_sfx.Stop();
+        camaraJugador.cullingMask = cullingInicio;
+        Ambiente_sfx(false);
+
+        await Task.Delay(TimeSpan.FromSeconds(1.5f));
+       
+        panelFinal_perdio.SetActive(true);
+    }
+
+    [Button]
+    public async void CajaCayo()
+    {
+        limites.SetActive(false);
+        empezarConteo = false;
+
+
+        Debug.Log("Caja Cayo");
+        Ambiente_sfx(false);
+        camaraJugador.cullingMask = cullingInicio;
+
+        fadeEsfera.SetTrigger("fadeIn");
+        suspenso_sfx.Stop();
+        await Task.Delay(TimeSpan.FromSeconds(1.5f));
+        panelFinal_perdio.SetActive(true);
+
 
     }
+
     public void FinJuego()
     {
         Debug.Log("Se termino el juego");
@@ -215,5 +286,22 @@ public class Master : MonoBehaviour
     public void SuscrbirPersona(PersonasControl persona)
     {
         personas.Add(persona);
+    }
+
+    void Ambiente_sfx(bool reproducir)
+    {
+        if (reproducir)
+        {
+            trafico_sfx.Play();
+            viento_sfx.Play();
+            heartbeat_sfx.Play();
+        }
+        else if(!reproducir)
+        {
+            trafico_sfx.Stop();
+            viento_sfx.Stop();
+            heartbeat_sfx.Stop();
+        }
+
     }
 }
