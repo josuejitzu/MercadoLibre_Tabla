@@ -13,11 +13,10 @@ public class JugadorControl : MonoBehaviour
     public Animator fadeBlanco;
     public Transform posInicial;
 
-
     void Start()
     {
-       
-        
+
+        _jugador = this;
     }
 
    
@@ -32,9 +31,11 @@ public class JugadorControl : MonoBehaviour
         if(other.transform.name == "triggerHelicoptero")
         {
             Debug.Log("Jugador entro a trigger helicoptero");
+            Master._master.ActivarHelicoptero();
         }
     }
 
+   
 
     public async void TirarJugador()
     {

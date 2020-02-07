@@ -24,6 +24,8 @@ public class Master : MonoBehaviour
     public GameObject panelFinal_perdio;
     public GameObject panelInicio;
     public GameObject limites;
+    public GameObject helicoptero;
+
     [Header("CullingMask")]
     public Camera camaraJugador;
     public LayerMask cullingInicio;
@@ -43,11 +45,20 @@ public class Master : MonoBehaviour
     public AudioSource afirmacion_sfx;
     public AudioSource trafico_sfx;
     public AudioSource viento_sfx;
+    public AudioSource vientoB_sfx;
+    public AudioSource crackMadera_sfx;
     public AudioSource suspenso_sfx;
     public AudioSource heartbeat_sfx;
     public AudioSource musicaLobby_sfx;
     public AudioSource celebracion_sfx;
     public AudioSource beepReloj_sfx;
+    public AudioSource cancionFinal;
+    public AudioSource perdios_sfx;
+
+    [Header("Latidos")]
+    public Transform posJugador;
+    public Transform posMax_Latidos;
+    public float maxVolumen = 0.9f;
 
     [Header("VFX")]
     public ParticleSystem confetti_vfx;
@@ -88,6 +99,8 @@ public class Master : MonoBehaviour
         {
             IniciarTutorial();
         }
+
+        Latido();
     }
 
     /// <summary>
@@ -146,6 +159,7 @@ public class Master : MonoBehaviour
 
         contadorInicio.SetActive(false);
         empezarConteo = true;
+        StartCoroutine( BeepReloj());
 
     }
     [Button]
@@ -178,18 +192,25 @@ public class Master : MonoBehaviour
             Debug.Log("Se termino el tiempo");
 
             empezarConteo = false;
-            FinJuego();
+            FinTiempo();
         }
     }
-    async void BeepReloj()
+    IEnumerator BeepReloj()
     {
+        beepReloj_sfx.gameObject.SetActive(true);
         beepReloj_sfx.Play();
-        await Task.Delay(TimeSpan.FromSeconds(30.0f));
+        //  await Task.Delay(TimeSpan.FromSeconds(30.0f));
+        yield return new WaitForSeconds(30.0f);
         if(empezarConteo)
         {
-            BeepReloj();
+          StartCoroutine(  BeepReloj());
         }
-
+        else
+        {
+            beepReloj_sfx.gameObject.SetActive(false);
+            beepReloj_sfx.Play();
+        }
+        
     }
     [Button]
     public void GanoJuego()
@@ -206,6 +227,8 @@ public class Master : MonoBehaviour
         confetti_vfx.Play();
         celebracion_sfx.Play();
         camaraJugador.cullingMask = cullingInicio;
+        cancionFinal.Play();
+
         panelFinal_gano.SetActive(true);
     }
 
@@ -224,7 +247,10 @@ public class Master : MonoBehaviour
         Ambiente_sfx(false);
 
         await Task.Delay(TimeSpan.FromSeconds(1.5f));
-       
+        perdios_sfx.Play();
+
+        cancionFinal.Play();
+
         panelFinal_perdio.SetActive(true);
     }
 
@@ -237,14 +263,48 @@ public class Master : MonoBehaviour
 
         Debug.Log("Caja Cayo");
         Ambiente_sfx(false);
+        JugadorControl._jugador.fadeBlanco.SetTrigger("fadeIn");
+        await Task.Delay(TimeSpan.FromSeconds(2.0f));
         camaraJugador.cullingMask = cullingInicio;
 
         fadeEsfera.SetTrigger("fadeIn");
         suspenso_sfx.Stop();
+        
+        JugadorControl._jugador.fadeBlanco.SetTrigger("fadeOut");
+
+        cancionFinal.Play();
+        perdios_sfx.Play();
         await Task.Delay(TimeSpan.FromSeconds(1.5f));
+
         panelFinal_perdio.SetActive(true);
 
 
+    }
+
+    [Button]
+    public async void FinTiempo()
+    {
+        limites.SetActive(false);
+        empezarConteo = false;
+
+
+        Debug.Log("Caja Cayo");
+        Ambiente_sfx(false);
+        JugadorControl._jugador.fadeBlanco.SetTrigger("fadeIn");
+        await Task.Delay(TimeSpan.FromSeconds(2.0f));
+        camaraJugador.cullingMask = cullingInicio;
+        fadeEsfera.SetTrigger("fadeIn");
+        JugadorControl._jugador.fadeBlanco.SetTrigger("fadeOut");
+
+        await Task.Delay(TimeSpan.FromSeconds(1.5f));
+
+
+        
+        suspenso_sfx.Stop();
+        cancionFinal.Play();
+        perdios_sfx.Play();
+        await Task.Delay(TimeSpan.FromSeconds(1.5f));
+        panelFinal_perdio.SetActive(true);
     }
 
     public void FinJuego()
@@ -278,9 +338,13 @@ public class Master : MonoBehaviour
     }
 
     [Button]
-    public void ActivarHelicoptero()
+    public async void ActivarHelicoptero()
     {
+        if (helicopteroAnim.activeInHierarchy)
+            return;
         helicopteroAnim.SetActive(true);
+        await Task.Delay(TimeSpan.FromSeconds(7.0f));
+        helicopteroAnim.SetActive(false);
     }
 
     public void SuscrbirPersona(PersonasControl persona)
@@ -294,14 +358,30 @@ public class Master : MonoBehaviour
         {
             trafico_sfx.Play();
             viento_sfx.Play();
+            vientoB_sfx.Play();
             heartbeat_sfx.Play();
+            crackMadera_sfx.Play();
         }
         else if(!reproducir)
         {
             trafico_sfx.Stop();
             viento_sfx.Stop();
+            vientoB_sfx.Stop();
             heartbeat_sfx.Stop();
+            crackMadera_sfx.Stop();
+
         }
 
     }
+
+    private void Latido()
+    {
+        //  Vector3.Distance(posJugador.position, posMax_Latidos.position);// distancia = posJugador.position - posMax_Latidos.position;
+       // float distanciaProporcional = 2*1/0 //0m = 1;  2m = x;
+        float volumenLatidos = 0.0f + (maxVolumen - Mathf.Clamp(Vector3.Distance(posJugador.position, posMax_Latidos.position),0.0f,maxVolumen));// Mathf.Clamp(distancia.magnitude, 0.0f, 0.9f);
+        print(volumenLatidos);
+        heartbeat_sfx.volume = volumenLatidos;
+    }
+
+    
 }
