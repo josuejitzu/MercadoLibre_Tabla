@@ -14,6 +14,7 @@ public class Master : MonoBehaviour
     [Header("Estado Juego")]
     public bool jugando;
     public bool enTutorial;
+    public bool gano;
     public bool tutorialTerminado;
 
     public GameObject instruccionesInicio;
@@ -40,6 +41,8 @@ public class Master : MonoBehaviour
     [Header("UIX")]
     public TMP_Text tiempo_texto;
     public GameObject panelCamaraB;
+    public TMP_Text estadoJuego_texto;
+    public GameObject consola;
     [Space(10)]
     [Header("SFX")]
     public AudioSource afirmacion_sfx;
@@ -66,6 +69,7 @@ public class Master : MonoBehaviour
     public List<PersonasControl> personas = new List<PersonasControl>();
 
     bool manoDerechaLista, manoizquierdaLista;
+
     void Start()
     {
         _master = this;
@@ -73,10 +77,16 @@ public class Master : MonoBehaviour
         camaraJugador.cullingMask = cullingInicio;
 
         tiempo = tiempoLimite;
-        tiempo_texto.text = (((Mathf.Floor(tiempo / 60f)) % 60).ToString("00")) + ":" + (Mathf.Floor(tiempo % 60f).ToString("00") + "." + ((tiempo * 100) % 100).ToString("00"));
+        tiempo_texto.text = (((Mathf.Floor(tiempo / 60f)) % 60).ToString("00")) + ":" 
+                                    + (Mathf.Floor(tiempo % 60f).ToString("00") + "." 
+                                    + ((tiempo * 100) % 100).ToString("00"));
+
+
         cronometro_jugador_text.text = tiempo_texto.text;
         zonaMeta.SetActive(false);
         instruccionesInicio.SetActive(false);
+        estadoJuego_texto.SetText("Esperando Jugador");
+
     }
 
     // Update is called once per frame
@@ -101,6 +111,11 @@ public class Master : MonoBehaviour
         }
 
         Latido();
+
+        if(Input.GetKey(KeyCode.LeftControl))
+        {
+            Comandos();
+        }
     }
 
     /// <summary>
@@ -116,14 +131,13 @@ public class Master : MonoBehaviour
         enTutorial = true;
         instruccionesInicio.SetActive(true);
         afirmacion_sfx.Play();
+        estadoJuego_texto.SetText("En Tutorial");
 
         await Task.Delay(TimeSpan.FromSeconds(11.0f));
         tutorialTerminado = true;
         enTutorial = false;
+
     }
-
-
-
 
     [Button]
     public async void IniciarJuego()
@@ -133,6 +147,8 @@ public class Master : MonoBehaviour
             return;
         else
             jugando = true;
+
+        estadoJuego_texto.SetText("En Juego");
 
         panelInicio.SetActive(false);
         limites.SetActive(true);
@@ -162,6 +178,7 @@ public class Master : MonoBehaviour
         StartCoroutine( BeepReloj());
 
     }
+
     [Button]
     public void ReiniciarJuego()
     {
@@ -195,6 +212,7 @@ public class Master : MonoBehaviour
             FinTiempo();
         }
     }
+
     IEnumerator BeepReloj()
     {
         beepReloj_sfx.gameObject.SetActive(true);
@@ -212,18 +230,21 @@ public class Master : MonoBehaviour
         }
         
     }
+
     [Button]
-    public void GanoJuego()
+    public async void GanoJuego()
     {
+        gano = true;
         limites.SetActive(false);
         empezarConteo = false;
-
+        estadoJuego_texto.SetText("¡GANO!");
+        afirmacion_sfx.Play();
         fadeEsfera.SetTrigger("fadeIn");
 
         Ambiente_sfx(false);
 
         suspenso_sfx.Stop();
-
+        await Task.Delay(TimeSpan.FromSeconds(2.0f));
         confetti_vfx.Play();
         celebracion_sfx.Play();
         camaraJugador.cullingMask = cullingInicio;
@@ -235,6 +256,7 @@ public class Master : MonoBehaviour
     [Button]
     public async void JugadorCayo()
     {
+        if (gano) return;
         limites.SetActive(false);
         empezarConteo = false;
 
@@ -245,6 +267,7 @@ public class Master : MonoBehaviour
         suspenso_sfx.Stop();
         camaraJugador.cullingMask = cullingInicio;
         Ambiente_sfx(false);
+        estadoJuego_texto.SetText("Perdio");
 
         await Task.Delay(TimeSpan.FromSeconds(1.5f));
         perdios_sfx.Play();
@@ -257,24 +280,28 @@ public class Master : MonoBehaviour
     [Button]
     public async void CajaCayo()
     {
+        if (gano) return;
+
         limites.SetActive(false);
         empezarConteo = false;
 
+        estadoJuego_texto.SetText("Perdio");
 
         Debug.Log("Caja Cayo");
         Ambiente_sfx(false);
         JugadorControl._jugador.fadeBlanco.SetTrigger("fadeIn");
-        await Task.Delay(TimeSpan.FromSeconds(2.0f));
         camaraJugador.cullingMask = cullingInicio;
 
         fadeEsfera.SetTrigger("fadeIn");
         suspenso_sfx.Stop();
-        
+        await Task.Delay(TimeSpan.FromSeconds(2.0f));
+
+
         JugadorControl._jugador.fadeBlanco.SetTrigger("fadeOut");
 
         cancionFinal.Play();
         perdios_sfx.Play();
-        await Task.Delay(TimeSpan.FromSeconds(1.5f));
+        await Task.Delay(TimeSpan.FromSeconds(1.2f));
 
         panelFinal_perdio.SetActive(true);
 
@@ -284,8 +311,12 @@ public class Master : MonoBehaviour
     [Button]
     public async void FinTiempo()
     {
+        if (gano)
+            return;
+
         limites.SetActive(false);
         empezarConteo = false;
+        estadoJuego_texto.SetText("Perdio");
 
 
         Debug.Log("Caja Cayo");
@@ -307,8 +338,11 @@ public class Master : MonoBehaviour
         panelFinal_perdio.SetActive(true);
     }
 
+    [Button]
     public void FinJuego()
     {
+        estadoJuego_texto.SetText("Perdio");
+
         Debug.Log("Se termino el juego");
     }
 
@@ -383,5 +417,13 @@ public class Master : MonoBehaviour
         heartbeat_sfx.volume = volumenLatidos;
     }
 
+    private void Comandos()
+    {
+        if(Input.GetKeyDown(KeyCode.C))
+        {
+            //Activar consolar
+            consola.SetActive(!consola.activeInHierarchy);
+        }
+    }
     
 }

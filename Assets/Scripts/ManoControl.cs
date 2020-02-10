@@ -14,6 +14,7 @@ public class ManoControl : MonoBehaviour
 
     public GameObject caja;
     public ManoControl manoContraria;
+    public Animator mano_anim;
     void Start()
     {
         
@@ -43,6 +44,7 @@ public class ManoControl : MonoBehaviour
             print("Trigger " + _tipoMano + " presionado");
             Master._master.InicioTrigger(_tipoMano);
 
+            mano_anim.SetBool("isGrabbing", true);
 
             if (caja != null && caja.GetComponent<Caja_Control>().cajaTomada == false)
             {
@@ -75,7 +77,7 @@ public class ManoControl : MonoBehaviour
            
 
             SoltarCaja();
-
+            mano_anim.SetBool("isGrabbing", false);
           
 
         }
