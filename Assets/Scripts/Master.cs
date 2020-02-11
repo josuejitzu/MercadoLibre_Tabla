@@ -202,8 +202,6 @@ public class Master : MonoBehaviour
 
 
 
-
-
         if (tiempo <= 0.0)
         {
             Debug.Log("Se termino el tiempo");
@@ -415,6 +413,7 @@ public class Master : MonoBehaviour
         float volumenLatidos = 0.0f + (maxVolumen - Mathf.Clamp(Vector3.Distance(posJugador.position, posMax_Latidos.position),0.0f,maxVolumen));// Mathf.Clamp(distancia.magnitude, 0.0f, 0.9f);
         print(volumenLatidos);
         heartbeat_sfx.volume = volumenLatidos;
+
     }
 
     private void Comandos()
