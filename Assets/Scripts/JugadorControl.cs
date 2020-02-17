@@ -23,6 +23,7 @@ public class JugadorControl : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+
         if(other.transform.tag == "Limite")
         {
             Debug.Log("jugador salio del limite");
@@ -33,6 +34,7 @@ public class JugadorControl : MonoBehaviour
             Debug.Log("Jugador entro a trigger helicoptero");
             Master._master.ActivarHelicoptero();
         }
+
     }
 
    
