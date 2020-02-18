@@ -43,6 +43,7 @@ public class Master : MonoBehaviour
     public GameObject panelCamaraB;
     public TMP_Text estadoJuego_texto;
     public GameObject consola;
+    public GameObject interfazOperador;
     [Space(10)]
     [Header("SFX")]
     public AudioSource afirmacion_sfx;
@@ -235,17 +236,21 @@ public class Master : MonoBehaviour
         gano = true;
         limites.SetActive(false);
         empezarConteo = false;
+        JugadorControl._jugador.fadeBlanco.SetTrigger("fadeIn");
+        zonaMeta.SetActive(false);
         estadoJuego_texto.SetText("¡GANO!");
         afirmacion_sfx.Play();
-        fadeEsfera.SetTrigger("fadeIn");
-
-        Ambiente_sfx(false);
-
-        suspenso_sfx.Stop();
         await Task.Delay(TimeSpan.FromSeconds(2.0f));
+        camaraJugador.cullingMask = cullingInicio;
+        fadeEsfera.SetTrigger("fadeIn");
+        Ambiente_sfx(false);
+        suspenso_sfx.Stop();
+        JugadorControl._jugador.fadeBlanco.SetTrigger("fadeOut");
+
+        await Task.Delay(TimeSpan.FromSeconds(1.5f));
+
         confetti_vfx.Play();
         celebracion_sfx.Play();
-        camaraJugador.cullingMask = cullingInicio;
         cancionFinal.Play();
 
         panelFinal_gano.SetActive(true);
@@ -265,7 +270,7 @@ public class Master : MonoBehaviour
         suspenso_sfx.Stop();
         camaraJugador.cullingMask = cullingInicio;
         Ambiente_sfx(false);
-        estadoJuego_texto.SetText("Perdio");
+        estadoJuego_texto.SetText("Perdio por caida");
 
         await Task.Delay(TimeSpan.FromSeconds(1.5f));
         perdios_sfx.Play();
@@ -283,7 +288,7 @@ public class Master : MonoBehaviour
         limites.SetActive(false);
         empezarConteo = false;
 
-        estadoJuego_texto.SetText("Perdio");
+        estadoJuego_texto.SetText("Perdio, caja cayo");
 
         Debug.Log("Caja Cayo");
         Ambiente_sfx(false);
@@ -314,7 +319,7 @@ public class Master : MonoBehaviour
 
         limites.SetActive(false);
         empezarConteo = false;
-        estadoJuego_texto.SetText("Perdio");
+        estadoJuego_texto.SetText("Perdio, se acabo el tiempo");
 
 
         Debug.Log("Caja Cayo");
@@ -422,6 +427,20 @@ public class Master : MonoBehaviour
         {
             //Activar consolar
             consola.SetActive(!consola.activeInHierarchy);
+        }
+        if(Input.GetKeyDown(KeyCode.X))
+        {
+            //TODO Ocultar o activar la interfaz de operador
+            interfazOperador.SetActive(!interfazOperador.activeInHierarchy);
+        }
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            panelCamaraB.SetActive(!panelCamaraB.activeInHierarchy);
+
+        }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
         }
     }
     

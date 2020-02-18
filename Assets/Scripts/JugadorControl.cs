@@ -34,7 +34,7 @@ public class JugadorControl : MonoBehaviour
             Debug.Log("Jugador entro a trigger helicoptero");
             Master._master.ActivarHelicoptero();
         }
-
+       
     }
 
    
